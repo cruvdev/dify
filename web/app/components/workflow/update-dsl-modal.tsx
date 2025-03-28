@@ -38,7 +38,6 @@ import { ToastContext } from '@/app/components/base/toast'
 import { useEventEmitterContextContext } from '@/context/event-emitter'
 import { useStore as useAppStore } from '@/app/components/app/store'
 import { FILE_EXTS } from '@/app/components/base/prompt-editor/constants'
-import { usePluginDependencies } from '@/app/components/workflow/plugin-dependency/hooks'
 
 type UpdateDSLModalProps = {
   onCancel: () => void
@@ -62,7 +61,6 @@ const UpdateDSLModal = ({
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [versions, setVersions] = useState<{ importedVersion: string; systemVersion: string }>()
   const [importId, setImportId] = useState<string>()
-  const { handleCheckPluginDependencies } = usePluginDependencies()
 
   const readFile = (file: File) => {
     const reader = new FileReader()
@@ -152,7 +150,6 @@ const UpdateDSLModal = ({
             message: t(status === DSLImportStatus.COMPLETED ? 'workflow.common.importSuccess' : 'workflow.common.importWarning'),
             children: status === DSLImportStatus.COMPLETED_WITH_WARNINGS && t('workflow.common.importWarningDetails'),
           })
-          await handleCheckPluginDependencies(app_id)
           setLoading(false)
           onCancel()
         }
@@ -179,7 +176,7 @@ const UpdateDSLModal = ({
       notify({ type: 'error', message: t('workflow.common.importFailure') })
     }
     isCreatingRef.current = false
-  }, [currentFile, fileContent, onCancel, notify, t, appDetail, onImport, handleWorkflowUpdate, handleCheckPluginDependencies])
+  }, [currentFile, fileContent, onCancel, notify, t, appDetail, onImport, handleWorkflowUpdate])
 
   const onUpdateDSLConfirm: MouseEventHandler = async () => {
     try {
@@ -197,7 +194,6 @@ const UpdateDSLModal = ({
           return
         }
         handleWorkflowUpdate(app_id)
-        await handleCheckPluginDependencies(app_id)
         if (onImport)
           onImport()
         notify({ type: 'success', message: t('workflow.common.importSuccess') })

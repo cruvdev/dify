@@ -25,7 +25,6 @@ import AppsFull from '@/app/components/billing/apps-full-in-dialog'
 import { NEED_REFRESH_APP_LIST_KEY } from '@/config'
 import { getRedirection } from '@/utils/app-redirection'
 import cn from '@/utils/classnames'
-import { usePluginDependencies } from '@/app/components/workflow/plugin-dependency/hooks'
 
 type CreateFromDSLModalProps = {
   show: boolean
@@ -51,7 +50,6 @@ const CreateFromDSLModal = ({ show, onSuccess, onClose, activeTab = CreateFromDS
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [versions, setVersions] = useState<{ importedVersion: string; systemVersion: string }>()
   const [importId, setImportId] = useState<string>()
-  const { handleCheckPluginDependencies } = usePluginDependencies()
 
   const readFile = (file: File) => {
     const reader = new FileReader()
@@ -115,8 +113,6 @@ const CreateFromDSLModal = ({ show, onSuccess, onClose, activeTab = CreateFromDS
           children: status === DSLImportStatus.COMPLETED_WITH_WARNINGS && t('app.newApp.appCreateDSLWarning'),
         })
         localStorage.setItem(NEED_REFRESH_APP_LIST_KEY, '1')
-        if (app_id)
-          await handleCheckPluginDependencies(app_id)
         getRedirection(isCurrentWorkspaceEditor, { id: app_id!, mode: app_mode }, push)
       }
       else if (status === DSLImportStatus.PENDING) {
@@ -162,8 +158,6 @@ const CreateFromDSLModal = ({ show, onSuccess, onClose, activeTab = CreateFromDS
           type: 'success',
           message: t('app.newApp.appCreated'),
         })
-        if (app_id)
-          await handleCheckPluginDependencies(app_id)
         localStorage.setItem(NEED_REFRESH_APP_LIST_KEY, '1')
         getRedirection(isCurrentWorkspaceEditor, { id: app_id!, mode: app_mode }, push)
       }

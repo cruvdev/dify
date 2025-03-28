@@ -1,4 +1,3 @@
-import { useStrategyProviderDetail } from '@/service/use-strategy'
 import useNodeCrud from '../_base/hooks/use-node-crud'
 import useVarList from '../_base/hooks/use-var-list'
 import useOneStepRun from '../_base/hooks/use-one-step-run'
@@ -8,7 +7,7 @@ import {
 } from '@/app/components/workflow/hooks'
 import { useCallback, useMemo } from 'react'
 import { type ToolVarInputs, VarType } from '../tool/types'
-import { useCheckInstalled, useFetchPluginsInMarketPlaceByIds } from '@/service/use-plugins'
+import { useCheckInstalled } from '@/service/use-plugins'
 import type { Var } from '../../types'
 import { VarType as VarKindType } from '../../types'
 import useAvailableVarList from '../_base/hooks/use-available-var-list'
@@ -21,46 +20,6 @@ export type StrategyStatus = {
   isExistInPlugin: boolean
 }
 
-export const useStrategyInfo = (
-  strategyProviderName?: string,
-  strategyName?: string,
-) => {
-  const strategyProvider = useStrategyProviderDetail(
-    strategyProviderName || '',
-    { retry: false },
-  )
-  const strategy = strategyProvider.data?.declaration.strategies.find(
-    str => str.identity.name === strategyName,
-  )
-  const marketplace = useFetchPluginsInMarketPlaceByIds([strategyProviderName!], {
-    retry: false,
-  })
-  const strategyStatus: StrategyStatus | undefined = useMemo(() => {
-    if (strategyProvider.isLoading || marketplace.isLoading)
-      return undefined
-    const strategyExist = !!strategy
-    const isPluginInstalled = !strategyProvider.isError
-    const isInMarketplace = !!marketplace.data?.data.plugins.at(0)
-    return {
-      plugin: {
-        source: isInMarketplace ? 'marketplace' : 'external',
-        installed: isPluginInstalled,
-      },
-      isExistInPlugin: strategyExist,
-    }
-  }, [strategy, marketplace, strategyProvider.isError, strategyProvider.isLoading])
-  const refetch = useCallback(() => {
-    strategyProvider.refetch()
-    marketplace.refetch()
-  }, [marketplace, strategyProvider])
-  return {
-    strategyProvider,
-    strategy,
-    strategyStatus,
-    refetch,
-  }
-}
-
 const useConfig = (id: string, payload: AgentNodeType) => {
   const { nodesReadOnly: readOnly } = useNodesReadOnly()
   const { inputs, setInputs } = useNodeCrud<AgentNodeType>(id, payload)
@@ -69,14 +28,6 @@ const useConfig = (id: string, payload: AgentNodeType) => {
     inputs,
     setInputs,
   })
-  const {
-    strategyStatus: currentStrategyStatus,
-    strategy: currentStrategy,
-    strategyProvider,
-  } = useStrategyInfo(
-    inputs.agent_strategy_provider_name,
-    inputs.agent_strategy_name,
-  )
   const pluginId = inputs.agent_strategy_provider_name?.split('/').splice(0, 2).join('/')
   const pluginDetail = useCheckInstalled({
     pluginIds: [pluginId!],
@@ -146,11 +97,8 @@ const useConfig = (id: string, payload: AgentNodeType) => {
     defaultRunInputData: {},
   })
   const allVarStrArr = (() => {
-    const arr = currentStrategy?.parameters.filter(item => item.type === 'string').map((item) => {
-      return formData[item.name]
-    }) || []
-
-    return arr
+    const res: string[] = []
+    return res
   })()
   const varInputs = (() => {
     const vars = getInputVars(allVarStrArr)
@@ -181,15 +129,10 @@ const useConfig = (id: string, payload: AgentNodeType) => {
     setInputs,
     handleVarListChange,
     handleAddVariable,
-    currentStrategy,
     formData,
     onFormChange,
-    currentStrategyStatus,
-    strategyProvider: strategyProvider.data,
-    pluginDetail: pluginDetail.data?.plugins.at(0),
     availableVars,
     availableNodesWithParent,
-
     isShowSingleRun,
     showSingleRun,
     hideSingleRun,

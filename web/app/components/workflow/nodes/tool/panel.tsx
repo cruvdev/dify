@@ -4,12 +4,10 @@ import { useTranslation } from 'react-i18next'
 import Split from '../_base/components/split'
 import type { ToolNodeType } from './types'
 import useConfig from './use-config'
-import InputVarList from './components/input-var-list'
 import Button from '@/app/components/base/button'
 import Field from '@/app/components/workflow/nodes/_base/components/field'
 import type { NodePanelProps } from '@/app/components/workflow/types'
 import Form from '@/app/components/header/account-setting/model-provider-page/model-modal/Form'
-import ConfigCredential from '@/app/components/tools/setting/build-in/config-credentials'
 import Loading from '@/app/components/base/loading'
 import BeforeRunForm from '@/app/components/workflow/nodes/_base/components/before-run-form'
 import OutputVars, { VarItem } from '@/app/components/workflow/nodes/_base/components/output-vars'
@@ -30,18 +28,10 @@ const Panel: FC<NodePanelProps<ToolNodeType>> = ({
     readOnly,
     inputs,
     toolInputVarSchema,
-    setInputVar,
-    handleOnVarOpen,
-    filterVar,
     toolSettingSchema,
     toolSettingValue,
     setToolSettingValue,
-    currCollection,
-    isShowAuthBtn,
-    showSetAuth,
     showSetAuthModal,
-    hideSetAuthModal,
-    handleSaveAuth,
     isLoading,
     isShowSingleRun,
     hideSingleRun,
@@ -68,7 +58,7 @@ const Panel: FC<NodePanelProps<ToolNodeType>> = ({
 
   return (
     <div className='pt-2'>
-      {!readOnly && isShowAuthBtn && (
+      {!readOnly && (
         <>
           <div className='px-4'>
             <Button
@@ -81,22 +71,12 @@ const Panel: FC<NodePanelProps<ToolNodeType>> = ({
           </div>
         </>
       )}
-      {!isShowAuthBtn && <>
+      {<>
         <div className='space-y-4 px-4'>
           {toolInputVarSchema.length > 0 && (
             <Field
               title={t(`${i18nPrefix}.inputVars`)}
             >
-              <InputVarList
-                readOnly={readOnly}
-                nodeId={id}
-                schema={toolInputVarSchema as any}
-                value={inputs.tool_parameters}
-                onChange={setInputVar}
-                filterVar={filterVar}
-                isSupportConstantValue
-                onOpen={handleOnVarOpen}
-              />
             </Field>
           )}
 
@@ -119,15 +99,6 @@ const Panel: FC<NodePanelProps<ToolNodeType>> = ({
           />
         </div>
       </>}
-
-      {showSetAuth && (
-        <ConfigCredential
-          collection={currCollection!}
-          onCancel={hideSetAuthModal}
-          onSaved={handleSaveAuth}
-          isHideRemoveBtn
-        />
-      )}
 
       <div>
         <OutputVars>

@@ -11,24 +11,15 @@ import type {
   Node,
 } from '../types'
 import { BlockEnum } from '../types'
-import { useStore } from '../store'
-import {
-  getToolCheckParams,
-  getValidTreeNodes,
-} from '../utils'
+import { getValidTreeNodes } from '../utils'
 import {
   CUSTOM_NODE,
   MAX_TREE_DEPTH,
 } from '../constants'
-import type { ToolNodeType } from '../nodes/tool/types'
 import { useIsChatMode } from './use-workflow'
 import { useNodesExtraData } from './use-nodes-data'
 import { useToastContext } from '@/app/components/base/toast'
-import { CollectionType } from '@/app/components/tools/types'
 import { useGetLanguage } from '@/context/i18n'
-import type { AgentNodeType } from '../nodes/agent/types'
-import { useStrategyProviders } from '@/service/use-strategy'
-import { canFindTool } from '@/utils'
 import { useDatasetsDetailStore } from '../datasets-detail-store/store'
 import type { KnowledgeRetrievalNodeType } from '../nodes/knowledge-retrieval/types'
 import type { DataSet } from '@/models/datasets'
@@ -39,10 +30,6 @@ export const useChecklist = (nodes: Node[], edges: Edge[]) => {
   const language = useGetLanguage()
   const nodesExtraData = useNodesExtraData()
   const isChatMode = useIsChatMode()
-  const buildInTools = useStore(s => s.buildInTools)
-  const customTools = useStore(s => s.customTools)
-  const workflowTools = useStore(s => s.workflowTools)
-  const { data: strategyProviders } = useStrategyProviders()
   const datasetsDetail = useDatasetsDetailStore(s => s.datasetsDetail)
 
   const getCheckData = useCallback((data: CommonNodeType<{}>) => {
@@ -71,36 +58,12 @@ export const useChecklist = (nodes: Node[], edges: Edge[]) => {
       let toolIcon
       let moreDataForCheckValid
 
-      if (node.data.type === BlockEnum.Tool) {
-        const { provider_type } = node.data
-
-        moreDataForCheckValid = getToolCheckParams(node.data as ToolNodeType, buildInTools, customTools, workflowTools, language)
-        if (provider_type === CollectionType.builtIn)
-          toolIcon = buildInTools.find(tool => canFindTool(tool.id, node.data.provider_id || ''))?.icon
-
-        if (provider_type === CollectionType.custom)
-          toolIcon = customTools.find(tool => tool.id === node.data.provider_id)?.icon
-
-        if (provider_type === CollectionType.workflow)
-          toolIcon = workflowTools.find(tool => tool.id === node.data.provider_id)?.icon
-      }
-
-      if (node.data.type === BlockEnum.Agent) {
-        const data = node.data as AgentNodeType
-        const isReadyForCheckValid = !!strategyProviders
-        const provider = strategyProviders?.find(provider => provider.declaration.identity.name === data.agent_strategy_provider_name)
-        const strategy = provider?.declaration.strategies?.find(s => s.identity.name === data.agent_strategy_name)
-        moreDataForCheckValid = {
-          provider,
-          strategy,
-          language,
-          isReadyForCheckValid,
-        }
-      }
+      if (node.data.type === BlockEnum.Agent)
+        moreDataForCheckValid = { language }
 
       if (node.type === CUSTOM_NODE) {
         const checkData = getCheckData(node.data)
-        const { errorMessage } = nodesExtraData[node.data.type].checkValid(checkData, t, moreDataForCheckValid)
+        const { errorMessage } = nodesExtraData[node.data.type]?.checkValid(checkData, t, moreDataForCheckValid) || {}
 
         if (errorMessage || !validNodes.find(n => n.id === node.id)) {
           list.push({
@@ -134,7 +97,7 @@ export const useChecklist = (nodes: Node[], edges: Edge[]) => {
     }
 
     return list
-  }, [nodes, edges, isChatMode, buildInTools, customTools, workflowTools, language, nodesExtraData, t, strategyProviders, getCheckData])
+  }, [nodes, edges, isChatMode, language, nodesExtraData, t, getCheckData])
 
   return needWarningNodes
 }
@@ -142,14 +105,10 @@ export const useChecklist = (nodes: Node[], edges: Edge[]) => {
 export const useChecklistBeforePublish = () => {
   const { t } = useTranslation()
   const language = useGetLanguage()
-  const buildInTools = useStore(s => s.buildInTools)
-  const customTools = useStore(s => s.customTools)
-  const workflowTools = useStore(s => s.workflowTools)
   const { notify } = useToastContext()
   const isChatMode = useIsChatMode()
   const store = useStoreApi()
   const nodesExtraData = useNodesExtraData()
-  const { data: strategyProviders } = useStrategyProviders()
   const updateDatasetsDetail = useDatasetsDetailStore(s => s.updateDatasetsDetail)
   const updateTime = useRef(0)
 
@@ -211,24 +170,14 @@ export const useChecklistBeforePublish = () => {
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i]
       let moreDataForCheckValid
-      if (node.data.type === BlockEnum.Tool)
-        moreDataForCheckValid = getToolCheckParams(node.data as ToolNodeType, buildInTools, customTools, workflowTools, language)
 
-      if (node.data.type === BlockEnum.Agent) {
-        const data = node.data as AgentNodeType
-        const isReadyForCheckValid = !!strategyProviders
-        const provider = strategyProviders?.find(provider => provider.declaration.identity.name === data.agent_strategy_provider_name)
-        const strategy = provider?.declaration.strategies?.find(s => s.identity.name === data.agent_strategy_name)
-        moreDataForCheckValid = {
-          provider,
-          strategy,
-          language,
-          isReadyForCheckValid,
-        }
-      }
+      if (node.data.type === BlockEnum.Agent)
+        moreDataForCheckValid = { language }
 
       const checkData = getCheckData(node.data, datasets)
+      console.log('useChecklistBeforePublish checkData:', checkData)
       const { errorMessage } = nodesExtraData[node.data.type as BlockEnum].checkValid(checkData, t, moreDataForCheckValid)
+      console.log('useChecklistBeforePublish errorMessage:', errorMessage)
 
       if (errorMessage) {
         notify({ type: 'error', message: `[${node.data.title}] ${errorMessage}` })
@@ -252,7 +201,7 @@ export const useChecklistBeforePublish = () => {
     }
 
     return true
-  }, [store, isChatMode, notify, t, buildInTools, customTools, workflowTools, language, nodesExtraData, strategyProviders, updateDatasetsDetail, getCheckData])
+  }, [store, isChatMode, notify, t, language, nodesExtraData, updateDatasetsDetail, getCheckData])
 
   return {
     handleCheckBeforePublish,

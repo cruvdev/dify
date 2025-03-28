@@ -18,7 +18,6 @@ import Toast from '@/app/components/base/toast'
 import { TransferMethod } from '@/types/app'
 import { getProcessedFiles } from '@/app/components/base/file-uploader/utils'
 import type { BlockEnum } from '@/app/components/workflow/types'
-import type { Emoji } from '@/app/components/tools/types'
 import type { SpecialResultPanelProps } from '@/app/components/workflow/run/special-result-panel'
 import SpecialResultPanel from '@/app/components/workflow/run/special-result-panel'
 
@@ -27,7 +26,7 @@ const i18nPrefix = 'workflow.singleRun'
 type BeforeRunFormProps = {
   nodeName: string
   nodeType?: BlockEnum
-  toolIcon?: string | Emoji
+  toolIcon?: string
   onHide: () => void
   onRun: (submitData: Record<string, any>) => void
   onStop: () => void

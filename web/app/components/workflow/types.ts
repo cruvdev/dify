@@ -7,7 +7,6 @@ import type { Resolution, TransferMethod } from '@/types/app'
 import type { ToolDefaultValue } from '@/app/components/workflow/block-selector/types'
 import type { VarType as VarKindType } from '@/app/components/workflow/nodes/tool/types'
 import type { FileResponse, NodeTracing } from '@/types/workflow'
-import type { Collection, Tool } from '@/app/components/tools/types'
 import type { ChatVarType } from '@/app/components/workflow/panel/chat-variable-panel/type'
 import type {
   DefaultValueForm,
@@ -386,10 +385,6 @@ export type MoreInfo = {
     beforeKey: string
     afterKey?: string
   }
-}
-
-export type ToolWithProvider = Collection & {
-  tools: Tool[]
 }
 
 export enum SupportUploadFileTypes {

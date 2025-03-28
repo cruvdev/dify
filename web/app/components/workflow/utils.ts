@@ -14,9 +14,7 @@ import {
 } from 'lodash-es'
 import type {
   Edge,
-  InputVar,
   Node,
-  ToolWithProvider,
   ValueSelector,
 } from './types'
 import {
@@ -40,12 +38,9 @@ import { CUSTOM_LOOP_START_NODE } from './nodes/loop-start/constants'
 import type { QuestionClassifierNodeType } from './nodes/question-classifier/types'
 import type { IfElseNodeType } from './nodes/if-else/types'
 import { branchNameCorrect } from './nodes/if-else/utils'
-import type { ToolNodeType } from './nodes/tool/types'
 import type { IterationNodeType } from './nodes/iteration/types'
 import type { LoopNodeType } from './nodes/loop/types'
-import { CollectionType } from '@/app/components/tools/types'
-import { toolParametersToFormSchemas } from '@/app/components/tools/utils/to-form-schema'
-import { canFindTool, correctModelProvider } from '@/utils'
+import { correctModelProvider } from '@/utils'
 
 const WHITE = 'WHITE'
 const GRAY = 'GRAY'
@@ -598,41 +593,6 @@ export const getValidTreeNodes = (nodes: Node[], edges: Edge[]) => {
   return {
     validNodes: uniqBy(list, 'id'),
     maxDepth,
-  }
-}
-
-export const getToolCheckParams = (
-  toolData: ToolNodeType,
-  buildInTools: ToolWithProvider[],
-  customTools: ToolWithProvider[],
-  workflowTools: ToolWithProvider[],
-  language: string,
-) => {
-  const { provider_id, provider_type, tool_name } = toolData
-  const isBuiltIn = provider_type === CollectionType.builtIn
-  const currentTools = provider_type === CollectionType.builtIn ? buildInTools : provider_type === CollectionType.custom ? customTools : workflowTools
-  const currCollection = currentTools.find(item => canFindTool(item.id, provider_id))
-  const currTool = currCollection?.tools.find(tool => tool.name === tool_name)
-  const formSchemas = currTool ? toolParametersToFormSchemas(currTool.parameters) : []
-  const toolInputVarSchema = formSchemas.filter((item: any) => item.form === 'llm')
-  const toolSettingSchema = formSchemas.filter((item: any) => item.form !== 'llm')
-
-  return {
-    toolInputsSchema: (() => {
-      const formInputs: InputVar[] = []
-      toolInputVarSchema.forEach((item: any) => {
-        formInputs.push({
-          label: item.label[language] || item.label.en_US,
-          variable: item.variable,
-          type: item.type,
-          required: item.required,
-        })
-      })
-      return formInputs
-    })(),
-    notAuthed: isBuiltIn && !!currCollection?.allow_delete && !currCollection?.is_team_authorization,
-    toolSettingSchema,
-    language,
   }
 }
 

@@ -29,9 +29,7 @@ import EmbeddedModal from '@/app/components/app/overview/embedded'
 import { useStore as useAppStore } from '@/app/components/app/store'
 import { useGetLanguage } from '@/context/i18n'
 import { CodeBrowser } from '@/app/components/base/icons/src/vender/line/development'
-import WorkflowToolConfigureButton from '@/app/components/tools/workflow-tool/configure-button'
 import type { InputVar } from '@/app/components/workflow/types'
-import { appDefaultIconBackground } from '@/config'
 import type { PublishWorkflowParams } from '@/types/workflow'
 
 export type AppPublisherProps = {
@@ -268,23 +266,6 @@ const AppPublisher = ({
               >
                 {t('workflow.common.accessAPIReference')}
               </SuggestedAction>
-              {appDetail?.mode === 'workflow' && (
-                <WorkflowToolConfigureButton
-                  disabled={!publishedAt}
-                  published={!!toolPublished}
-                  detailNeedUpdate={!!toolPublished && published}
-                  workflowAppId={appDetail?.id}
-                  icon={{
-                    content: (appDetail.icon_type === 'image' ? '🤖' : appDetail?.icon) || '🤖',
-                    background: (appDetail.icon_type === 'image' ? appDefaultIconBackground : appDetail?.icon_background) || appDefaultIconBackground,
-                  }}
-                  name={appDetail?.name}
-                  description={appDetail?.description}
-                  inputs={inputs}
-                  handlePublish={handlePublish}
-                  onRefreshData={onRefreshData}
-                />
-              )}
             </div>
           </div>
         </PortalToFollowElemContent>

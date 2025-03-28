@@ -27,7 +27,6 @@ import TryToAsk from './try-to-ask'
 import { ChatContextProvider } from './context'
 import type { InputForm } from './type'
 import cn from '@/utils/classnames'
-import type { Emoji } from '@/app/components/tools/types'
 import Button from '@/app/components/base/button'
 import { StopCircle } from '@/app/components/base/icons/src/vender/solid/mediaAndDevices'
 import AgentLogModal from '@/app/components/base/agent-log-modal'
@@ -55,7 +54,7 @@ export type ChatProps = {
   showPromptLog?: boolean
   questionIcon?: ReactNode
   answerIcon?: ReactNode
-  allToolIcons?: Record<string, string | Emoji>
+  allToolIcons?: Record<string, string>
   onAnnotationEdited?: (question: string, answer: string, index: number) => void
   onAnnotationAdded?: (annotationId: string, authorName: string, question: string, answer: string, index: number) => void
   onAnnotationRemoved?: (index: number) => void

@@ -25,7 +25,6 @@ import type { VisionSettings } from '@/types/app'
 import { ModelModeType, RETRIEVE_TYPE, Resolution, TransferMethod } from '@/types/app'
 import { ANNOTATION_DEFAULT, DEFAULT_AGENT_SETTING, DEFAULT_CHAT_PROMPT_CONFIG, DEFAULT_COMPLETION_PROMPT_CONFIG } from '@/config'
 import type { FormValue } from '@/app/components/header/account-setting/model-provider-page/declarations'
-import type { Collection } from '@/app/components/tools/types'
 
 type IDebugConfiguration = {
   appId: string
@@ -39,7 +38,6 @@ type IDebugConfiguration = {
   isAgent: boolean
   isFunctionCall: boolean
   isOpenAI: boolean
-  collectionList: Collection[]
   canReturnToSimpleMode: boolean
   setCanReturnToSimpleMode: (canReturnToSimpleMode: boolean) => void
   chatPromptConfig: ChatPromptConfig
@@ -117,7 +115,6 @@ const DebugConfigurationContext = createContext<IDebugConfiguration>({
   isAgent: false,
   isFunctionCall: false,
   isOpenAI: false,
-  collectionList: [],
   canReturnToSimpleMode: false,
   setCanReturnToSimpleMode: () => { },
   chatPromptConfig: DEFAULT_CHAT_PROMPT_CONFIG,

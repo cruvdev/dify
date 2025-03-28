@@ -1,6 +1,7 @@
 'use client'
+
 import type { FC } from 'react'
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContext } from 'use-context-selector'
 import copy from 'copy-to-clipboard'
@@ -11,60 +12,38 @@ import {
   RiInformation2Line,
 } from '@remixicon/react'
 import { useFormattingChangedDispatcher } from '../../../debug/hooks'
-import SettingBuiltInTool from './setting-built-in-tool'
 import Panel from '@/app/components/app/configuration/base/feature-panel'
 import OperationBtn from '@/app/components/app/configuration/base/operation-btn'
-import AppIcon from '@/app/components/base/app-icon'
 import Button from '@/app/components/base/button'
 import Indicator from '@/app/components/header/indicator'
 import Switch from '@/app/components/base/switch'
-import Toast from '@/app/components/base/toast'
 import ConfigContext from '@/context/debug-configuration'
 import type { AgentTool } from '@/types/app'
-import { type Collection, CollectionType } from '@/app/components/tools/types'
 import { MAX_TOOLS_NUM } from '@/config'
 import { AlertTriangle } from '@/app/components/base/icons/src/vender/solid/alertsAndFeedback'
 import Tooltip from '@/app/components/base/tooltip'
 import { DefaultToolIcon } from '@/app/components/base/icons/src/public/other'
-import ConfigCredential from '@/app/components/tools/setting/build-in/config-credentials'
-import { updateBuiltInToolCredential } from '@/service/tools'
 import cn from '@/utils/classnames'
 import ToolPicker from '@/app/components/workflow/block-selector/tool-picker'
 import type { ToolDefaultValue } from '@/app/components/workflow/block-selector/types'
-import { canFindTool } from '@/utils'
 
-type AgentToolWithMoreInfo = AgentTool & { icon: any; collection?: Collection } | null
+type AgentToolWithMoreInfo = AgentTool & { icon: any } | null
 const AgentTools: FC = () => {
   const { t } = useTranslation()
   const [isShowChooseTool, setIsShowChooseTool] = useState(false)
-  const { modelConfig, setModelConfig, collectionList } = useContext(ConfigContext)
+  const { modelConfig, setModelConfig } = useContext(ConfigContext)
   const formattingChangedDispatcher = useFormattingChangedDispatcher()
 
   const [currentTool, setCurrentTool] = useState<AgentToolWithMoreInfo>(null)
-  const currentCollection = useMemo(() => {
-    if (!currentTool) return null
-    const collection = collectionList.find(collection => canFindTool(collection.id, currentTool?.provider_id) && collection.type === currentTool?.provider_type)
-    return collection
-  }, [currentTool, collectionList])
   const [isShowSettingTool, setIsShowSettingTool] = useState(false)
   const [isShowSettingAuth, setShowSettingAuth] = useState(false)
   const tools = (modelConfig?.agentConfig?.tools as AgentTool[] || []).map((item) => {
-    const collection = collectionList.find(
-      collection =>
-        canFindTool(collection.id, item.provider_id)
-        && collection.type === item.provider_type,
-    )
-    const icon = collection?.icon
-    return {
-      ...item,
-      icon,
-      collection,
-    }
+    return { ...item }
   })
 
   const handleToolSettingChange = (value: Record<string, any>) => {
     const newModelConfig = produce(modelConfig, (draft) => {
-      const tool = (draft.agentConfig.tools).find((item: any) => item.provider_id === currentTool?.collection?.id && item.tool_name === currentTool?.tool_name)
+      const tool = (draft.agentConfig.tools).find((item: any) => item.tool_name === currentTool?.tool_name)
       if (tool)
         (tool as AgentTool).tool_parameters = value
     })
@@ -90,7 +69,6 @@ const AgentTools: FC = () => {
     const newModelConfig = produce(modelConfig, (draft) => {
       draft.agentConfig.tools.push({
         provider_id: tool.provider_id,
-        provider_type: tool.provider_type as CollectionType,
         provider_name: tool.provider_name,
         tool_name: tool.tool_name,
         tool_label: tool.tool_label,
@@ -140,7 +118,7 @@ const AgentTools: FC = () => {
         }
       >
         <div className='grid grid-cols-1 flex-wrap items-center justify-between gap-1 2xl:grid-cols-2'>
-          {tools.map((item: AgentTool & { icon: any; collection?: Collection }, index) => (
+          {tools.map((item: AgentTool, index) => (
             <div key={index}
               className={cn(
                 'cursor group relative flex w-full items-center justify-between rounded-lg border-[0.5px] border-components-panel-border-subtle bg-components-panel-on-panel-item-bg p-1.5 pr-2 shadow-xs last-of-type:mb-0 hover:bg-components-panel-on-panel-item-bg-hover hover:shadow-sm',
@@ -149,19 +127,13 @@ const AgentTools: FC = () => {
             >
               <div className='flex w-0 grow items-center'>
                 {item.isDeleted && <DefaultToolIcon className='h-5 w-5' />}
-                {!item.isDeleted && (
-                  <div className={cn((item.notAuthor || !item.enabled) && 'opacity-50')}>
-                    {typeof item.icon === 'string' && <div className='h-5 w-5 rounded-md bg-cover bg-center' style={{ backgroundImage: `url(${item.icon})` }} />}
-                    {typeof item.icon !== 'string' && <AppIcon className='rounded-md' size='xs' icon={item.icon?.content} background={item.icon?.background} />}
-                  </div>
-                )}
                 <div
                   className={cn(
                     'system-xs-regular ml-1.5 flex w-0 grow items-center truncate',
                     (item.isDeleted || item.notAuthor || !item.enabled) ? 'opacity-50' : '',
                   )}
                 >
-                  <span className='system-xs-medium pr-1.5 text-text-secondary'>{item.provider_type === CollectionType.builtIn ? item.provider_name.split('/').pop() : item.tool_label}</span>
+                  <span className='system-xs-medium pr-1.5 text-text-secondary'>{item.provider_name.split('/').pop()}</span>
                   <span className='text-text-tertiary'>{item.tool_label}</span>
                   {!item.isDeleted && (
                     <Tooltip
@@ -218,7 +190,6 @@ const AgentTools: FC = () => {
                         needsDelay
                       >
                         <div className='cursor-pointer rounded-md p-1  hover:bg-black/5' onClick={() => {
-                          setCurrentTool(item)
                           setIsShowSettingTool(true)
                         }}>
                           <RiEqualizer2Line className='h-4 w-4 text-text-tertiary' />
@@ -257,7 +228,6 @@ const AgentTools: FC = () => {
                   )}
                   {item.notAuthor && (
                     <Button variant='secondary' size='small' onClick={() => {
-                      setCurrentTool(item)
                       setShowSettingAuth(true)
                     }}>
                       {t('tools.notAuthorized')}
@@ -270,32 +240,6 @@ const AgentTools: FC = () => {
           ))}
         </div >
       </Panel >
-      {isShowSettingTool && (
-        <SettingBuiltInTool
-          toolName={currentTool?.tool_name as string}
-          setting={currentTool?.tool_parameters as any}
-          collection={currentTool?.collection as Collection}
-          isBuiltIn={currentTool?.collection?.type === CollectionType.builtIn}
-          isModel={currentTool?.collection?.type === CollectionType.model}
-          onSave={handleToolSettingChange}
-          onHide={() => setIsShowSettingTool(false)}
-        />
-      )}
-      {isShowSettingAuth && (
-        <ConfigCredential
-          collection={currentCollection as any}
-          onCancel={() => setShowSettingAuth(false)}
-          onSaved={async (value) => {
-            await updateBuiltInToolCredential((currentCollection as any).name, value)
-            Toast.notify({
-              type: 'success',
-              message: t('common.api.actionSuccess'),
-            })
-            handleToolAuthSetting(currentTool as any)
-            setShowSettingAuth(false)
-          }}
-        />
-      )}
     </>
   )
 }

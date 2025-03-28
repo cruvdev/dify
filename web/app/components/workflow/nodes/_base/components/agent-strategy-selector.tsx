@@ -1,26 +1,15 @@
 import { PortalToFollowElem, PortalToFollowElemContent, PortalToFollowElemTrigger } from '@/app/components/base/portal-to-follow-elem'
 import type { ReactNode } from 'react'
-import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useRef, useState } from 'react'
 import type { Strategy } from './agent-strategy'
 import classNames from '@/utils/classnames'
-import { RiArrowDownSLine, RiErrorWarningFill } from '@remixicon/react'
+import { RiErrorWarningFill } from '@remixicon/react'
 import Tooltip from '@/app/components/base/tooltip'
 import Link from 'next/link'
-import { InstallPluginButton } from './install-plugin-button'
 import ViewTypeSelect, { ViewType } from '../../../block-selector/view-type-select'
 import SearchInput from '@/app/components/base/search-input'
 import Tools from '../../../block-selector/tools'
 import { useTranslation } from 'react-i18next'
-import { useStrategyProviders } from '@/service/use-strategy'
-import { PluginType, type StrategyPluginDetail } from '@/app/components/plugins/types'
-import type { ToolWithProvider } from '../../../types'
-import { CollectionType } from '@/app/components/tools/types'
-import useGetIcon from '@/app/components/plugins/install-plugin/base/use-get-icon'
-import { useStrategyInfo } from '../../agent/use-config'
-import { SwitchPluginVersion } from './switch-plugin-version'
-import PluginList from '@/app/components/workflow/block-selector/market-place-plugin/list'
-import { useMarketplacePlugins } from '@/app/components/plugins/marketplace/hooks'
-import { ToolTipContent } from '@/app/components/base/tooltip/content'
 
 const NotFoundWarn = (props: {
   title: ReactNode,
@@ -53,35 +42,6 @@ const NotFoundWarn = (props: {
   </Tooltip>
 }
 
-function formatStrategy(input: StrategyPluginDetail[], getIcon: (i: string) => string): ToolWithProvider[] {
-  return input.map((item) => {
-    const res: ToolWithProvider = {
-      id: item.plugin_unique_identifier,
-      author: item.declaration.identity.author,
-      name: item.declaration.identity.name,
-      description: item.declaration.identity.description as any,
-      plugin_id: item.plugin_id,
-      icon: getIcon(item.declaration.identity.icon),
-      label: item.declaration.identity.label as any,
-      type: CollectionType.all,
-      tools: item.declaration.strategies.map(strategy => ({
-        name: strategy.identity.name,
-        author: strategy.identity.author,
-        label: strategy.identity.label as any,
-        description: strategy.description,
-        parameters: strategy.parameters as any,
-        output_schema: strategy.output_schema,
-        labels: [],
-      })),
-      team_credentials: {},
-      is_team_authorization: true,
-      allow_delete: false,
-      labels: [],
-    }
-    return res
-  })
-}
-
 export type AgentStrategySelectorProps = {
   value?: Strategy,
   onChange: (value?: Strategy) => void,
@@ -92,53 +52,10 @@ export const AgentStrategySelector = memo((props: AgentStrategySelectorProps) =>
   const [open, setOpen] = useState(false)
   const [viewType, setViewType] = useState<ViewType>(ViewType.flat)
   const [query, setQuery] = useState('')
-  const stra = useStrategyProviders()
-  const { getIconUrl } = useGetIcon()
-  const list = stra.data ? formatStrategy(stra.data, getIconUrl) : undefined
-  const filteredTools = useMemo(() => {
-    if (!list) return []
-    return list.filter(tool => tool.name.toLowerCase().includes(query.toLowerCase()))
-  }, [query, list])
-  const { strategyStatus, refetch: refetchStrategyInfo } = useStrategyInfo(
-    value?.agent_strategy_provider_name,
-    value?.agent_strategy_name,
-  )
 
-  const showPluginNotInstalledWarn = strategyStatus?.plugin?.source === 'external'
-    && !strategyStatus.plugin.installed && !!value
-
-  const showUnsupportedStrategy = strategyStatus?.plugin.source === 'external'
-    && !strategyStatus?.isExistInPlugin && !!value
-
-  const showSwitchVersion = !strategyStatus?.isExistInPlugin
-    && strategyStatus?.plugin.source === 'marketplace' && strategyStatus.plugin.installed && !!value
-
-  const showInstallButton = !strategyStatus?.isExistInPlugin
-    && strategyStatus?.plugin.source === 'marketplace' && !strategyStatus.plugin.installed && !!value
-
-  const icon = list?.find(
-    coll => coll.tools?.find(tool => tool.name === value?.agent_strategy_name),
-  )?.icon as string | undefined
   const { t } = useTranslation()
 
   const wrapElemRef = useRef<HTMLDivElement>(null)
-
-  const {
-    queryPluginsWithDebounced: fetchPlugins,
-    plugins: notInstalledPlugins = [],
-  } = useMarketplacePlugins()
-
-  useEffect(() => {
-    if (query) {
-      fetchPlugins({
-        query,
-        category: PluginType.agent,
-      })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query])
-
-  const pluginRef = useRef(null)
 
   return <PortalToFollowElem open={open} onOpenChange={setOpen} placement='bottom'>
     <PortalToFollowElemTrigger className='w-full'>
@@ -147,47 +64,11 @@ export const AgentStrategySelector = memo((props: AgentStrategySelectorProps) =>
         onClick={() => setOpen(o => !o)}
       >
         { }
-        {icon && <div className='flex h-6 w-6 items-center justify-center'><img
-          src={icon}
-          width={20}
-          height={20}
-          className='rounded-md border-[0.5px] border-components-panel-border-subtle bg-background-default-dodge'
-          alt='icon'
-        /></div>}
         <p
           className={classNames(value ? 'text-components-input-text-filled' : 'text-components-input-text-placeholder', 'text-xs px-1')}
         >
           {value?.agent_strategy_label || t('workflow.nodes.agent.strategy.selectTip')}
         </p>
-        <div className='ml-auto flex items-center gap-1'>
-          {showInstallButton && value && <InstallPluginButton
-            onClick={e => e.stopPropagation()}
-            size={'small'}
-            uniqueIdentifier={value.plugin_unique_identifier}
-          />}
-          {showPluginNotInstalledWarn
-            ? <NotFoundWarn
-              title={t('workflow.nodes.agent.pluginNotInstalled')}
-              description={t('workflow.nodes.agent.pluginNotInstalledDesc')}
-            />
-            : showUnsupportedStrategy
-              ? <NotFoundWarn
-                title={t('workflow.nodes.agent.unsupportedStrategy')}
-                description={t('workflow.nodes.agent.strategyNotFoundDesc')}
-              />
-              : <RiArrowDownSLine className='size-4 text-text-tertiary' />
-          }
-          {showSwitchVersion && <SwitchPluginVersion
-            uniqueIdentifier={value.plugin_unique_identifier}
-            tooltip={<ToolTipContent
-              title={t('workflow.nodes.agent.unsupportedStrategy')}>
-              {t('workflow.nodes.agent.strategyNotFoundDescAndSwitchVersion')}
-            </ToolTipContent>}
-            onChange={() => {
-              refetchStrategyInfo()
-            }}
-          />}
-        </div>
       </div>
     </PortalToFollowElemTrigger>
     <PortalToFollowElemContent className='z-10'>
@@ -198,7 +79,6 @@ export const AgentStrategySelector = memo((props: AgentStrategySelectorProps) =>
         </header>
         <main className="relative flex w-full flex-col overflow-hidden md:max-h-[300px] xl:max-h-[400px] 2xl:max-h-[564px]" ref={wrapElemRef}>
           <Tools
-            tools={filteredTools}
             viewType={viewType}
             onSelect={(_, tool) => {
               onChange({
@@ -212,13 +92,6 @@ export const AgentStrategySelector = memo((props: AgentStrategySelectorProps) =>
             }}
             className='h-full max-h-full max-w-none overflow-y-auto'
             indexBarClassName='top-0 xl:top-36' showWorkflowEmpty={false} hasSearchText={false} />
-          <PluginList
-            wrapElemRef={wrapElemRef}
-            list={notInstalledPlugins as any} ref={pluginRef}
-            searchText={query}
-            tags={[]}
-            disableMaxWidth
-          />
         </main>
       </div>
     </PortalToFollowElemContent>

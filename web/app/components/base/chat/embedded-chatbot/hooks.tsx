@@ -34,7 +34,6 @@ import { useToastContext } from '@/app/components/base/toast'
 import { changeLanguage } from '@/i18n/i18next-config'
 import { InputVarType } from '@/app/components/workflow/types'
 import { TransferMethod } from '@/types/app'
-import { addFileInfos, sortAgentSorts } from '@/app/components/tools/utils'
 
 function getFormattedChatList(messages: any[]) {
   const newChatList: ChatItem[] = []
@@ -51,7 +50,6 @@ function getFormattedChatList(messages: any[]) {
     newChatList.push({
       id: item.id,
       content: item.answer,
-      agent_thoughts: addFileInfos(item.agent_thoughts ? sortAgentSorts(item.agent_thoughts) : item.agent_thoughts, item.message_files),
       feedback: item.feedback,
       isAnswer: true,
       citation: item.retriever_resources,

@@ -18,11 +18,9 @@ import { useStore as useAppStore } from '@/app/components/app/store'
 import { ToastContext } from '@/app/components/base/toast'
 import AppsContext, { useAppContext } from '@/context/app-context'
 import { useProviderContext } from '@/context/provider-context'
-import { copyApp, deleteApp, exportAppConfig, updateAppInfo } from '@/service/apps'
+import { copyApp, deleteApp, exportAppConfig } from '@/service/apps'
 import DuplicateAppModal from '@/app/components/app/duplicate-modal'
 import type { DuplicateAppModalProps } from '@/app/components/app/duplicate-modal'
-import CreateAppModal from '@/app/components/explore/create-app-modal'
-import type { CreateAppModalProps } from '@/app/components/explore/create-app-modal'
 import { NEED_REFRESH_APP_LIST_KEY } from '@/config'
 import { getRedirection } from '@/utils/app-redirection'
 import UpdateDSLModal from '@/app/components/workflow/update-dsl-modal'
@@ -56,39 +54,6 @@ const AppInfo = ({ expand }: IAppInfoProps) => {
     AppsContext,
     state => state.mutateApps,
   )
-
-  const onEdit: CreateAppModalProps['onConfirm'] = useCallback(async ({
-    name,
-    icon_type,
-    icon,
-    icon_background,
-    description,
-    use_icon_as_answer_icon,
-  }) => {
-    if (!appDetail)
-      return
-    try {
-      const app = await updateAppInfo({
-        appID: appDetail.id,
-        name,
-        icon_type,
-        icon,
-        icon_background,
-        description,
-        use_icon_as_answer_icon,
-      })
-      setShowEditModal(false)
-      notify({
-        type: 'success',
-        message: t('app.editDone'),
-      })
-      setAppDetail(app)
-      mutateApps()
-    }
-    catch (e) {
-      notify({ type: 'error', message: t('app.editFailed') })
-    }
-  }, [appDetail, mutateApps, notify, setAppDetail, t])
 
   const onCopy: DuplicateAppModalProps['onConfirm'] = async ({ name, icon_type, icon, icon_background }) => {
     if (!appDetail)
@@ -323,22 +288,6 @@ const AppInfo = ({ expand }: IAppInfoProps) => {
           appDetail={appDetail}
           onClose={() => setShowSwitchModal(false)}
           onSuccess={() => setShowSwitchModal(false)}
-        />
-      )}
-      {showEditModal && (
-        <CreateAppModal
-          isEditModal
-          appName={appDetail.name}
-          appIconType={appDetail.icon_type}
-          appIcon={appDetail.icon}
-          appIconBackground={appDetail.icon_background}
-          appIconUrl={appDetail.icon_url}
-          appDescription={appDetail.description}
-          appMode={appDetail.mode}
-          appUseIconAsAnswerIcon={appDetail.use_icon_as_answer_icon}
-          show={showEditModal}
-          onConfirm={onEdit}
-          onHide={() => setShowEditModal(false)}
         />
       )}
       {showDuplicateModal && (

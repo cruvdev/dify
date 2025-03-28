@@ -31,8 +31,6 @@ import ModelLoadBalancingModal from '@/app/components/header/account-setting/mod
 import OpeningSettingModal from '@/app/components/base/features/new-feature-panel/conversation-opener/modal'
 import type { OpeningStatement } from '@/app/components/base/features/types'
 import type { InputVar } from '@/app/components/workflow/types'
-import type { UpdatePluginPayload } from '@/app/components/plugins/types'
-import UpdatePlugin from '@/app/components/plugins/update-plugin'
 
 export type ModalState<T> = {
   payload: T
@@ -71,7 +69,7 @@ export type ModalContextState = {
     workflowVariables?: InputVar[]
     onAutoAddPromptVariable?: (variable: PromptVariable[]) => void
   }> | null>>
-  setShowUpdatePluginModal: Dispatch<SetStateAction<ModalState<UpdatePluginPayload> | null>>
+  setShowUpdatePluginModal: Dispatch<SetStateAction<null>>
 }
 const ModalContext = createContext<ModalContextState>({
   setShowAccountSettingModal: () => { },
@@ -114,7 +112,7 @@ export const ModalContextProvider = ({
     workflowVariables?: InputVar[]
     onAutoAddPromptVariable?: (variable: PromptVariable[]) => void
   }> | null>(null)
-  const [showUpdatePluginModal, setShowUpdatePluginModal] = useState<ModalState<UpdatePluginPayload> | null>(null)
+  const [showUpdatePluginModal, setShowUpdatePluginModal] = useState<null>(null)
 
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -346,22 +344,6 @@ export const ModalContextProvider = ({
             onAutoAddPromptVariable={showOpeningModal.payload.onAutoAddPromptVariable}
           />
         )}
-
-        {
-          !!showUpdatePluginModal && (
-            <UpdatePlugin
-              {...showUpdatePluginModal.payload}
-              onCancel={() => {
-                setShowUpdatePluginModal(null)
-                showUpdatePluginModal.onCancelCallback?.()
-              }}
-              onSave={() => {
-                setShowUpdatePluginModal(null)
-                showUpdatePluginModal.onSaveCallback?.({} as any)
-              }}
-            />
-          )
-        }
       </>
     </ModalContext.Provider>
   )

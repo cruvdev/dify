@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
 import { useDebounce } from 'ahooks'
@@ -22,15 +22,10 @@ import {
 } from './declarations'
 import {
   useDefaultModel,
-  useMarketplaceAllPlugins,
   useModelModalHandler,
 } from './hooks'
 import Divider from '@/app/components/base/divider'
-import Loading from '@/app/components/base/loading'
-import ProviderCard from '@/app/components/plugins/provider-card'
-import List from '@/app/components/plugins/marketplace/list'
 import { useProviderContext } from '@/context/provider-context'
-import type { Plugin } from '@/app/components/plugins/types'
 import { MARKETPLACE_URL_PREFIX } from '@/config'
 import cn from '@/utils/classnames'
 import { getLocaleOnClient } from '@/i18n'
@@ -96,17 +91,6 @@ const ModelProviderPage = ({ searchText }: Props) => {
   const handleOpenModal = useModelModalHandler()
   const [collapse, setCollapse] = useState(false)
   const locale = getLocaleOnClient()
-  const {
-    plugins: allPlugins,
-    isLoading: isAllPluginsLoading,
-  } = useMarketplaceAllPlugins(providers, searchText)
-
-  const cardRender = useCallback((plugin: Plugin) => {
-    if (plugin.type === 'bundle')
-      return null
-
-    return <ProviderCard key={plugin.plugin_id} payload={plugin} />
-  }, [])
 
   return (
     <div className='relative -mt-2 pt-1'>
@@ -183,21 +167,6 @@ const ModelProviderPage = ({ searchText }: Props) => {
             </Link>
           </div>
         </div>
-        {!collapse && isAllPluginsLoading && <Loading type='area' />}
-        {
-          !isAllPluginsLoading && !collapse && (
-            <List
-              marketplaceCollections={[]}
-              marketplaceCollectionPluginsMap={{}}
-              plugins={allPlugins}
-              showInstallButton
-              locale={locale}
-              cardContainerClassName='grid grid-cols-2 gap-2'
-              cardRender={cardRender}
-              emptyClassName='h-auto'
-            />
-          )
-        }
       </div>
     </div>
   )

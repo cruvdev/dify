@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { ValidatingTip } from '../../key-validator/ValidateStatus'
 import type {
@@ -17,10 +17,6 @@ import cn from '@/utils/classnames'
 import { SimpleSelect } from '@/app/components/base/select'
 import Tooltip from '@/app/components/base/tooltip'
 import Radio from '@/app/components/base/radio'
-import ModelParameterModal from '@/app/components/plugins/plugin-detail-panel/model-selector'
-import ToolSelector from '@/app/components/plugins/plugin-detail-panel/tool-selector'
-import MultipleToolSelector from '@/app/components/plugins/plugin-detail-panel/multiple-tool-selector'
-import AppSelector from '@/app/components/plugins/plugin-detail-panel/app-selector'
 import RadioE from '@/app/components/base/radio/ui'
 import type {
   NodeOutPutVar,
@@ -113,15 +109,6 @@ function Form<
     }
     onChange({ ...value, [key]: val, ...shouldClearVariable })
   }
-
-  const handleModelChanged = useCallback((key: string, model: any) => {
-    const newValue = {
-      ...value[key],
-      ...model,
-      type: FormTypeEnum.modelSelector,
-    }
-    onChange({ ...value, [key]: newValue })
-  }, [onChange, value])
 
   const renderField = (formSchema: CredentialFormSchema | CustomFormSchema) => {
     const tooltip = formSchema.tooltip
@@ -306,15 +293,6 @@ function Form<
             )}
             {tooltipContent}
           </div>
-          <ModelParameterModal
-            popupClassName='!w-[387px]'
-            isAdvancedMode
-            isInWorkflow
-            isAgentStrategy={isAgentStrategy}
-            value={value[variable]}
-            setModel={model => handleModelChanged(variable, model)}
-            readonly={readonly}
-            scope={scope} />
           {fieldMoreInfo?.(formSchema)}
           {validating && changeKey === variable && <ValidatingTip />}
         </div>
@@ -337,17 +315,6 @@ function Form<
             )}
             {tooltipContent}
           </div>
-          <ToolSelector
-            scope={scope}
-            nodeId={nodeId}
-            nodeOutputVars={nodeOutputVars || []}
-            availableNodes={availableNodes || []}
-            disabled={readonly}
-            value={value[variable]}
-            // selectedTools={value[variable] ? [value[variable]] : []}
-            onSelect={item => handleFormChange(variable, item as any)}
-            onDelete={() => handleFormChange(variable, null as any)}
-          />
           {fieldMoreInfo?.(formSchema)}
           {validating && changeKey === variable && <ValidatingTip />}
         </div>
@@ -365,18 +332,6 @@ function Form<
 
       return (
         <div key={variable} className={cn(itemClassName, 'py-3')}>
-          <MultipleToolSelector
-            disabled={readonly}
-            nodeId={nodeId}
-            nodeOutputVars={nodeOutputVars || []}
-            availableNodes={availableNodes || []}
-            scope={scope}
-            label={label[language] || label.en_US}
-            required={required}
-            tooltip={tooltip?.[language] || tooltip?.en_US}
-            value={value[variable] || []}
-            onChange={item => handleFormChange(variable, item as any)}
-          />
           {fieldMoreInfo?.(formSchema)}
           {validating && changeKey === variable && <ValidatingTip />}
         </div>
@@ -397,11 +352,6 @@ function Form<
             )}
             {tooltipContent}
           </div>
-          <AppSelector
-            disabled={readonly}
-            scope={scope}
-            value={value[variable]}
-            onSelect={item => handleFormChange(variable, { ...item, type: FormTypeEnum.appSelector } as any)} />
           {fieldMoreInfo?.(formSchema)}
           {validating && changeKey === variable && <ValidatingTip />}
         </div>

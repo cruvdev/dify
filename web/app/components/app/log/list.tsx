@@ -30,7 +30,6 @@ import { fetchChatConversationDetail, fetchChatMessages, fetchCompletionConversa
 import ModelInfo from '@/app/components/app/log/model-info'
 import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
 import TextGeneration from '@/app/components/app/text-generate/item'
-import { addFileInfos, sortAgentSorts } from '@/app/components/tools/utils'
 import MessageLogModal from '@/app/components/base/message-log-modal'
 import PromptLogModal from '@/app/components/base/prompt-log-modal'
 import { useStore as useAppStore } from '@/app/components/app/store'
@@ -124,7 +123,6 @@ const getFormattedChatList = (messages: ChatMessage[], conversationId: string, t
     newChatList.push({
       id: item.id,
       content: item.answer,
-      agent_thoughts: addFileInfos(item.agent_thoughts ? sortAgentSorts(item.agent_thoughts) : item.agent_thoughts, item.message_files),
       feedback: item.feedbacks.find(item => item.from_source === 'user'), // user feedback
       adminFeedback: item.feedbacks.find(item => item.from_source === 'admin'), // admin feedback
       feedbackDisabled: false,

@@ -1,5 +1,4 @@
 import type { AnnotationReplyConfig, ChatPromptConfig, CompletionPromptConfig, DatasetConfigs, PromptMode } from '@/models/debug'
-import type { CollectionType } from '@/app/components/tools/types'
 import type { LanguagesSupported } from '@/i18n/language'
 import type { Tag } from '@/app/components/base/tag-management/constant'
 import type {
@@ -118,7 +117,6 @@ export type UserInputFormItem = {
 
 export type AgentTool = {
   provider_id: string
-  provider_type: CollectionType
   provider_name: string
   tool_name: string
   tool_label: string

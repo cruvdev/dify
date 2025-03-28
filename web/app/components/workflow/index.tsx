@@ -74,7 +74,6 @@ import SyncingDataModal from './syncing-data-modal'
 import UpdateDSLModal from './update-dsl-modal'
 import DSLExportConfirmModal from './dsl-export-confirm-modal'
 import LimitTips from './limit-tips'
-import PluginDependency from './plugin-dependency'
 import {
   useStore,
   useWorkflowStore,
@@ -333,7 +332,6 @@ const Workflow: FC<WorkflowProps> = memo(({
         )
       }
       <LimitTips />
-      <PluginDependency />
       <ReactFlow
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}

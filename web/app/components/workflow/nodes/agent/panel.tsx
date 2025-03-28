@@ -7,38 +7,23 @@ import { AgentStrategy } from '../_base/components/agent-strategy'
 import useConfig from './use-config'
 import { useTranslation } from 'react-i18next'
 import OutputVars, { VarItem } from '../_base/components/output-vars'
-import type { StrategyParamItem } from '@/app/components/plugins/types'
-import type { CredentialFormSchema } from '@/app/components/header/account-setting/model-provider-page/declarations'
 import BeforeRunForm from '@/app/components/workflow/nodes/_base/components/before-run-form'
 import ResultPanel from '@/app/components/workflow/run/result-panel'
 import formatTracing from '@/app/components/workflow/run/utils/format-log'
 import { useLogs } from '@/app/components/workflow/run/hooks'
 import type { Props as FormProps } from '@/app/components/workflow/nodes/_base/components/before-run-form/form'
-import { toType } from '@/app/components/tools/utils/to-form-schema'
 import { useStore } from '../../store'
 
 const i18nPrefix = 'workflow.nodes.agent'
-
-export function strategyParamToCredientialForm(param: StrategyParamItem): CredentialFormSchema {
-  return {
-    ...param as any,
-    variable: param.name,
-    show_on: [],
-    type: toType(param.type),
-  }
-}
 
 const AgentPanel: FC<NodePanelProps<AgentNodeType>> = (props) => {
   const {
     inputs,
     setInputs,
-    currentStrategy,
     formData,
     onFormChange,
-
     availableNodesWithParent,
     availableVars,
-
     isShowSingleRun,
     hideSingleRun,
     runningStatus,
@@ -98,7 +83,7 @@ const AgentPanel: FC<NodePanelProps<AgentNodeType>> = (props) => {
           })
           resetEditor(Date.now())
         }}
-        formSchema={currentStrategy?.parameters?.map(strategyParamToCredientialForm) || []}
+        formSchema={[]}
         formValue={formData}
         onFormValueChange={onFormChange}
         nodeOutputVars={availableVars}

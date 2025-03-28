@@ -9,8 +9,6 @@ import Form from '@/app/components/header/account-setting/model-provider-page/mo
 import { Agent } from '@/app/components/base/icons/src/vender/workflow'
 import { InputNumber } from '@/app/components/base/input-number'
 import Slider from '@/app/components/base/slider'
-import ToolSelector from '@/app/components/plugins/plugin-detail-panel/tool-selector'
-import MultipleToolSelector from '@/app/components/plugins/plugin-detail-panel/multiple-tool-selector'
 import Field from './field'
 import { type ComponentProps, memo } from 'react'
 import { useDefaultModel } from '@/app/components/header/account-setting/model-provider-page/hooks'
@@ -144,54 +142,6 @@ export const AgentStrategy = memo((props: AgentStrategyProps) => {
       }
     },
   ]
-  const renderField: ComponentProps<typeof Form<CustomField>>['customRenderField'] = (schema, props) => {
-    switch (schema.type) {
-      case FormTypeEnum.toolSelector: {
-        const value = props.value[schema.variable]
-        const onChange = (value: any) => {
-          props.onChange({ ...props.value, [schema.variable]: value })
-        }
-        return (
-          <Field
-            title={<>
-              {renderI18nObject(schema.label)} {schema.required && <span className='text-red-500'>*</span>}
-            </>}
-            tooltip={schema.tooltip && renderI18nObject(schema.tooltip)}
-          >
-            <ToolSelector
-              nodeId={props.nodeId || ''}
-              nodeOutputVars={props.nodeOutputVars || []}
-              availableNodes={props.availableNodes || []}
-              scope={schema.scope}
-              value={value}
-              onSelect={item => onChange(item)}
-              onDelete={() => onChange(null)}
-            />
-          </Field>
-        )
-      }
-      case FormTypeEnum.multiToolSelector: {
-        const value = props.value[schema.variable]
-        const onChange = (value: any) => {
-          props.onChange({ ...props.value, [schema.variable]: value })
-        }
-        return (
-          <MultipleToolSelector
-            nodeId={props.nodeId || ''}
-            nodeOutputVars={props.nodeOutputVars || []}
-            availableNodes={props.availableNodes || []}
-            scope={schema.scope}
-            value={value || []}
-            label={renderI18nObject(schema.label)}
-            tooltip={schema.tooltip && renderI18nObject(schema.tooltip)}
-            onChange={onChange}
-            supportCollapse
-            required={schema.required}
-          />
-        )
-      }
-    }
-  }
   return <div className='space-y-2'>
     <AgentStrategySelector value={strategy} onChange={onStrategyChange} />
     {
@@ -208,7 +158,6 @@ export const AgentStrategy = memo((props: AgentStrategyProps) => {
             isEditMode={true}
             isAgentStrategy={true}
             fieldLabelClassName='uppercase'
-            customRenderField={renderField}
             override={override}
             nodeId={nodeId}
             nodeOutputVars={nodeOutputVars || []}

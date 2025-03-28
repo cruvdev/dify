@@ -59,8 +59,6 @@ import {
   useModelListAndDefaultModelAndCurrentProviderAndModel,
   useTextGenerationCurrentProviderAndModelAndModelList,
 } from '@/app/components/header/account-setting/model-provider-page/hooks'
-import { fetchCollectionList } from '@/service/tools'
-import type { Collection } from '@/app/components/tools/types'
 import { useStore as useAppStore } from '@/app/components/app/store'
 import {
   getMultipleRetrievalConfig,
@@ -72,11 +70,7 @@ import { FILE_EXTS } from '@/app/components/base/prompt-editor/constants'
 import { SupportUploadFileTypes } from '@/app/components/workflow/types'
 import NewFeaturePanel from '@/app/components/base/features/new-feature-panel'
 import { fetchFileUploadConfig } from '@/service/common'
-import {
-  correctModelProvider,
-  correctToolProvider,
-} from '@/utils'
-import PluginDependency from '@/app/components/workflow/plugin-dependency'
+import { correctModelProvider } from '@/utils'
 
 type PublishConfig = {
   modelConfig: ModelConfig
@@ -195,10 +189,7 @@ const Configuration: FC = () => {
 
   const isOpenAI = modelConfig.provider === 'langgenius/openai/openai'
 
-  const [collectionList, setCollectionList] = useState<Collection[]>([])
-  useEffect(() => {
-
-  }, [])
+  useEffect(() => { }, [])
   const [datasetConfigs, doSetDatasetConfigs] = useState<DatasetConfigs>({
     retrieval_model: RETRIEVE_TYPE.multiWay,
     reranking_model: {
@@ -509,8 +500,6 @@ const Configuration: FC = () => {
 
   useEffect(() => {
     (async () => {
-      const collectionList = await fetchCollectionList()
-      setCollectionList(collectionList)
       fetchAppDetail({ url: '/apps', id: appId }).then(async (res: any) => {
         setMode(res.mode)
         const modelConfig = res.model_config
@@ -630,15 +619,9 @@ const Configuration: FC = () => {
               tools: modelConfig.agent_mode?.tools.filter((tool: any) => {
                 return !tool.dataset
               }).map((tool: any) => {
-                const toolInCollectionList = collectionList.find(c => tool.provider_id === c.id)
                 return {
                   ...tool,
                   isDeleted: res.deleted_tools?.some((deletedTool: any) => deletedTool.id === tool.id && deletedTool.tool_name === tool.tool_name),
-                  notAuthor: toolInCollectionList?.is_team_authorization === false,
-                  ...(tool.provider_type === 'builtin' ? {
-                    provider_id: correctToolProvider(tool.provider_name, !!toolInCollectionList),
-                    provider_name: correctToolProvider(tool.provider_name, !!toolInCollectionList),
-                  } : {}),
                 }
               }),
             } : DEFAULT_AGENT_SETTING,
@@ -843,7 +826,6 @@ const Configuration: FC = () => {
       isAgent,
       isOpenAI,
       isFunctionCall,
-      collectionList,
       setPromptMode,
       canReturnToSimpleMode,
       setCanReturnToSimpleMode,
@@ -1059,7 +1041,6 @@ const Configuration: FC = () => {
               onAutoAddPromptVariable={handleAddPromptVariable}
             />
           )}
-          <PluginDependency />
         </>
       </FeaturesProvider>
     </ConfigContext.Provider>

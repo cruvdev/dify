@@ -1,6 +1,5 @@
 import type { FC } from 'react'
 import { memo } from 'react'
-import { useAllBuiltInTools, useAllCustomTools, useAllWorkflowTools } from '@/service/use-tools'
 import type { BlockEnum } from '../types'
 import { useTabs } from './hooks'
 import type { ToolDefaultValue } from './types'
@@ -28,9 +27,6 @@ const Tabs: FC<TabsProps> = ({
   noBlocks,
 }) => {
   const tabs = useTabs()
-  const { data: buildInTools } = useAllBuiltInTools()
-  const { data: customTools } = useAllCustomTools()
-  const { data: workflowTools } = useAllWorkflowTools()
 
   return (
     <div onClick={e => e.stopPropagation()}>
@@ -72,9 +68,6 @@ const Tabs: FC<TabsProps> = ({
             searchText={searchText}
             onSelect={onSelect}
             tags={tags}
-            buildInTools={buildInTools || []}
-            customTools={customTools || []}
-            workflowTools={workflowTools || []}
           />
         )
       }

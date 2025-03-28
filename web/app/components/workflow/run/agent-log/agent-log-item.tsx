@@ -12,9 +12,6 @@ import type { AgentLogItemWithChildren } from '@/types/workflow'
 import NodeStatusIcon from '@/app/components/workflow/nodes/_base/components/node-status-icon'
 import CodeEditor from '@/app/components/workflow/nodes/_base/components/editor/code-editor'
 import { CodeLanguage } from '@/app/components/workflow/nodes/code/types'
-import BlockIcon from '@/app/components/workflow/block-icon'
-import { BlockEnum } from '@/app/components/workflow/types'
-import useGetIcon from '@/app/components/plugins/install-plugin/base/use-get-icon'
 
 type AgentLogItemProps = {
   item: AgentLogItemWithChildren
@@ -32,20 +29,6 @@ const AgentLogItem = ({
     metadata,
   } = item
   const [expanded, setExpanded] = useState(false)
-  const { getIconUrl } = useGetIcon()
-  const toolIcon = useMemo(() => {
-    const icon = metadata?.icon
-
-    if (icon) {
-      if (icon.includes('http'))
-        return icon
-
-      return getIconUrl(icon)
-    }
-
-    return ''
-  }, [getIconUrl, metadata?.icon])
-
   const mergeStatus = useMemo(() => {
     if (status === 'start')
       return 'running'
@@ -67,11 +50,6 @@ const AgentLogItem = ({
             ? <RiArrowRightSLine className='h-4 w-4 shrink-0 rotate-90 text-text-quaternary' />
             : <RiArrowRightSLine className='h-4 w-4 shrink-0 text-text-quaternary' />
         }
-        <BlockIcon
-          className='mr-1.5 shrink-0'
-          type={toolIcon ? BlockEnum.Tool : BlockEnum.Agent}
-          toolIcon={toolIcon}
-        />
         <div
           className='system-sm-semibold-uppercase grow truncate text-text-secondary'
           title={label}

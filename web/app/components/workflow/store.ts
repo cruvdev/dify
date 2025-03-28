@@ -17,7 +17,6 @@ import type {
   HistoryWorkflowData,
   Node,
   RunFile,
-  ToolWithProvider,
   WorkflowRunningData,
 } from './types'
 import { WorkflowContext } from './context'
@@ -96,12 +95,6 @@ type Shape = {
   isRestoring: boolean
   setIsRestoring: (isRestoring: boolean) => void
   debouncedSyncWorkflowDraft: (fn: () => void) => void
-  buildInTools: ToolWithProvider[]
-  setBuildInTools: (tools: ToolWithProvider[]) => void
-  customTools: ToolWithProvider[]
-  setCustomTools: (tools: ToolWithProvider[]) => void
-  workflowTools: ToolWithProvider[]
-  setWorkflowTools: (tools: ToolWithProvider[]) => void
   clipboardElements: Node[]
   setClipboardElements: (clipboardElements: Node[]) => void
   showDebugAndPreviewPanel: boolean
@@ -234,12 +227,6 @@ export const createWorkflowStore = () => {
     debouncedSyncWorkflowDraft: debounce((syncWorkflowDraft) => {
       syncWorkflowDraft()
     }, 5000),
-    buildInTools: [],
-    setBuildInTools: buildInTools => set(() => ({ buildInTools })),
-    customTools: [],
-    setCustomTools: customTools => set(() => ({ customTools })),
-    workflowTools: [],
-    setWorkflowTools: workflowTools => set(() => ({ workflowTools })),
     clipboardElements: [],
     setClipboardElements: clipboardElements => set(() => ({ clipboardElements })),
     showDebugAndPreviewPanel: false,

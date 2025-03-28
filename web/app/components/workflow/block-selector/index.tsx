@@ -22,7 +22,6 @@ import {
   PortalToFollowElemTrigger,
 } from '@/app/components/base/portal-to-follow-elem'
 import Input from '@/app/components/base/input'
-import SearchBox from '@/app/components/plugins/marketplace/search-box'
 
 import {
   Plus02,
@@ -141,17 +140,6 @@ const NodeSelector: FC<NodeSelectorProps> = ({
                 onClear={() => setSearchText('')}
               />
             )}
-            {activeTab === TabsEnum.Tools && (
-              <SearchBox
-                search={searchText}
-                onSearchChange={setSearchText}
-                tags={tags}
-                onTagsChange={setTags}
-                size='small'
-                placeholder={t('plugin.searchTools')!}
-              />
-            )}
-
           </div>
           <Tabs
             activeTab={activeTab}

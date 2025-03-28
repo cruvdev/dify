@@ -49,17 +49,10 @@ import {
   syncWorkflowDraft,
 } from '@/service/workflow'
 import type { FetchWorkflowDraftResponse } from '@/types/workflow'
-import {
-  fetchAllBuiltInTools,
-  fetchAllCustomTools,
-  fetchAllWorkflowTools,
-} from '@/service/tools'
 import I18n from '@/context/i18n'
-import { CollectionType } from '@/app/components/tools/types'
 import { CUSTOM_ITERATION_START_NODE } from '@/app/components/workflow/nodes/iteration-start/constants'
 import { CUSTOM_LOOP_START_NODE } from '@/app/components/workflow/nodes/loop-start/constants'
 import { useWorkflowConfig } from '@/service/use-workflow'
-import { canFindTool } from '@/utils'
 
 export const useIsChatMode = () => {
   const appDetail = useAppStore(s => s.appDetail)
@@ -442,29 +435,7 @@ export const useWorkflow = () => {
 export const useFetchToolsData = () => {
   const workflowStore = useWorkflowStore()
 
-  const handleFetchAllTools = useCallback(async (type: string) => {
-    if (type === 'builtin') {
-      const buildInTools = await fetchAllBuiltInTools()
-
-      workflowStore.setState({
-        buildInTools: buildInTools || [],
-      })
-    }
-    if (type === 'custom') {
-      const customTools = await fetchAllCustomTools()
-
-      workflowStore.setState({
-        customTools: customTools || [],
-      })
-    }
-    if (type === 'workflow') {
-      const workflowTools = await fetchAllWorkflowTools()
-
-      workflowStore.setState({
-        workflowTools: workflowTools || [],
-      })
-    }
-  }, [workflowStore])
+  const handleFetchAllTools = useCallback(async (type: string) => { }, [workflowStore])
 
   return {
     handleFetchAllTools,
@@ -608,21 +579,7 @@ export const useNodesReadOnly = () => {
 }
 
 export const useToolIcon = (data: Node['data']) => {
-  const buildInTools = useStore(s => s.buildInTools)
-  const customTools = useStore(s => s.customTools)
-  const workflowTools = useStore(s => s.workflowTools)
-  const toolIcon = useMemo(() => {
-    if (data.type === BlockEnum.Tool) {
-      let targetTools = buildInTools
-      if (data.provider_type === CollectionType.builtIn)
-        targetTools = buildInTools
-      else if (data.provider_type === CollectionType.custom)
-        targetTools = customTools
-      else
-        targetTools = workflowTools
-      return targetTools.find(toolWithProvider => canFindTool(toolWithProvider.id, data.provider_id))?.icon
-    }
-  }, [data, buildInTools, customTools, workflowTools])
+  const toolIcon = useMemo(() => { }, [data])
 
   return toolIcon
 }

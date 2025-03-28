@@ -1,7 +1,4 @@
 import { get, post } from './base'
-import type {
-  EndpointsResponse,
-} from '@/app/components/plugins/types'
 import {
   useMutation,
   useQuery,
@@ -13,7 +10,7 @@ const NAME_SPACE = 'endpoints'
 export const useEndpointList = (pluginID: string) => {
   return useQuery({
     queryKey: [NAME_SPACE, 'list', pluginID],
-    queryFn: () => get<EndpointsResponse>('/workspaces/current/endpoints/list/plugin', {
+    queryFn: () => get('/workspaces/current/endpoints/list/plugin', {
       params: {
         plugin_id: pluginID,
         page: 1,

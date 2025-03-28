@@ -9,25 +9,17 @@ import { useDebounceFn } from 'ahooks'
 import { RiRobot2Line } from '@remixicon/react'
 import AppCard from '../app-card'
 import Sidebar, { AppCategories, AppCategoryLabel } from './sidebar'
-import Toast from '@/app/components/base/toast'
 import Divider from '@/app/components/base/divider'
 import cn from '@/utils/classnames'
 import ExploreContext from '@/context/explore-context'
 import type { App } from '@/models/explore'
-import { fetchAppDetail, fetchAppList } from '@/service/explore'
-import { importDSL } from '@/service/apps'
+import { fetchAppList } from '@/service/explore'
 import { useTabSearchParams } from '@/hooks/use-tab-searchparams'
-import CreateAppModal from '@/app/components/explore/create-app-modal'
 import AppTypeSelector from '@/app/components/app/type-selector'
-import type { CreateAppModalProps } from '@/app/components/explore/create-app-modal'
 import Loading from '@/app/components/base/loading'
-import { NEED_REFRESH_APP_LIST_KEY } from '@/config'
 import { useAppContext } from '@/context/app-context'
-import { getRedirection } from '@/utils/app-redirection'
 import Input from '@/app/components/base/input'
 import type { AppMode } from '@/types/app'
-import { DSLImportMode } from '@/models/app'
-import { usePluginDependencies } from '@/app/components/workflow/plugin-dependency/hooks'
 
 type AppsProps = {
   onSuccess?: () => void
@@ -40,7 +32,6 @@ type AppsProps = {
 // }
 
 const Apps = ({
-  onSuccess,
   onCreateFromBlank,
 }: AppsProps) => {
   const { t } = useTranslation()
@@ -120,43 +111,6 @@ const Apps = ({
 
   const [currApp, setCurrApp] = React.useState<App | null>(null)
   const [isShowCreateModal, setIsShowCreateModal] = React.useState(false)
-  const { handleCheckPluginDependencies } = usePluginDependencies()
-  const onCreate: CreateAppModalProps['onConfirm'] = async ({
-    name,
-    icon_type,
-    icon,
-    icon_background,
-    description,
-  }) => {
-    const { export_data, mode } = await fetchAppDetail(
-      currApp?.app.id as string,
-    )
-    try {
-      const app = await importDSL({
-        mode: DSLImportMode.YAML_CONTENT,
-        yaml_content: export_data,
-        name,
-        icon_type,
-        icon,
-        icon_background,
-        description,
-      })
-      setIsShowCreateModal(false)
-      Toast.notify({
-        type: 'success',
-        message: t('app.newApp.appCreated'),
-      })
-      if (onSuccess)
-        onSuccess()
-      if (app.app_id)
-        await handleCheckPluginDependencies(app.app_id)
-      localStorage.setItem(NEED_REFRESH_APP_LIST_KEY, '1')
-      getRedirection(isCurrentWorkspaceEditor, { id: app.app_id!, mode }, push)
-    }
-    catch (e) {
-      Toast.notify({ type: 'error', message: t('app.newApp.appCreateFailed') })
-    }
-  }
 
   if (!categories || categories.length === 0) {
     return (
@@ -220,19 +174,6 @@ const Apps = ({
           {(!searchFilteredList || searchFilteredList.length === 0) && <NoTemplateFound />}
         </div>
       </div>
-      {isShowCreateModal && (
-        <CreateAppModal
-          appIconType={currApp?.app.icon_type || 'emoji'}
-          appIcon={currApp?.app.icon || ''}
-          appIconBackground={currApp?.app.icon_background || ''}
-          appIconUrl={currApp?.app.icon_url}
-          appName={currApp?.app.name || ''}
-          appDescription={currApp?.app.description || ''}
-          show={isShowCreateModal}
-          onConfirm={onCreate}
-          onHide={() => setIsShowCreateModal(false)}
-        />
-      )}
     </div>
   )
 }

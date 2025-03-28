@@ -36,13 +36,13 @@ export const useAvailableBlocks = (nodeType?: BlockEnum, isInIteration?: boolean
   const availablePrevBlocks = useMemo(() => {
     if (!nodeType)
       return []
-    return nodesExtraData[nodeType].availablePrevNodes || []
+    return nodesExtraData[nodeType]?.availablePrevNodes || []
   }, [nodeType, nodesExtraData])
 
   const availableNextBlocks = useMemo(() => {
     if (!nodeType)
       return []
-    return nodesExtraData[nodeType].availableNextNodes || []
+    return nodesExtraData[nodeType]?.availableNextNodes || []
   }, [nodeType, nodesExtraData])
 
   return useMemo(() => {

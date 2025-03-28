@@ -8,7 +8,7 @@ import { RiMoreFill } from '@remixicon/react'
 import type { App } from '@/types/app'
 import Confirm from '@/app/components/base/confirm'
 import Toast, { ToastContext } from '@/app/components/base/toast'
-import { copyApp, deleteApp, exportAppConfig, updateAppInfo } from '@/service/apps'
+import { copyApp, deleteApp, exportAppConfig } from '@/service/apps'
 import DuplicateAppModal from '@/app/components/app/duplicate-modal'
 import type { DuplicateAppModalProps } from '@/app/components/app/duplicate-modal'
 import AppIcon from '@/app/components/base/app-icon'
@@ -19,8 +19,6 @@ import Divider from '@/app/components/base/divider'
 import { getRedirection } from '@/utils/app-redirection'
 import { useProviderContext } from '@/context/provider-context'
 import { NEED_REFRESH_APP_LIST_KEY } from '@/config'
-import type { CreateAppModalProps } from '@/app/components/explore/create-app-modal'
-import EditAppModal from '@/app/components/explore/create-app-modal'
 import SwitchAppModal from '@/app/components/app/switch-app-modal'
 import type { Tag } from '@/app/components/base/tag-management/constant'
 import TagSelector from '@/app/components/base/tag-management/selector'
@@ -72,38 +70,6 @@ const AppCard = ({ app, onRefresh }: AppCardProps) => {
     setShowConfirmDelete(false)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [app.id])
-
-  const onEdit: CreateAppModalProps['onConfirm'] = useCallback(async ({
-    name,
-    icon_type,
-    icon,
-    icon_background,
-    description,
-    use_icon_as_answer_icon,
-  }) => {
-    try {
-      await updateAppInfo({
-        appID: app.id,
-        name,
-        icon_type,
-        icon,
-        icon_background,
-        description,
-        use_icon_as_answer_icon,
-      })
-      setShowEditModal(false)
-      notify({
-        type: 'success',
-        message: t('app.editDone'),
-      })
-      if (onRefresh)
-        onRefresh()
-      mutateApps()
-    }
-    catch {
-      notify({ type: 'error', message: t('app.editFailed') })
-    }
-  }, [app.id, mutateApps, notify, onRefresh, t])
 
   const onCopy: DuplicateAppModalProps['onConfirm'] = async ({ name, icon_type, icon, icon_background }) => {
     try {
@@ -366,22 +332,6 @@ const AppCard = ({ app, onRefresh }: AppCardProps) => {
           )}
         </div>
       </div>
-      {showEditModal && (
-        <EditAppModal
-          isEditModal
-          appName={app.name}
-          appIconType={app.icon_type}
-          appIcon={app.icon}
-          appIconBackground={app.icon_background}
-          appIconUrl={app.icon_url}
-          appDescription={app.description}
-          appMode={app.mode}
-          appUseIconAsAnswerIcon={app.use_icon_as_answer_icon}
-          show={showEditModal}
-          onConfirm={onEdit}
-          onHide={() => setShowEditModal(false)}
-        />
-      )}
       {showDuplicateModal && (
         <DuplicateAppModal
           appName={app.name}

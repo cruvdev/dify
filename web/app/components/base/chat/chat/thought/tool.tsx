@@ -12,15 +12,14 @@ import Panel from './panel'
 import cn from '@/utils/classnames'
 import { CheckCircle } from '@/app/components/base/icons/src/vender/solid/general'
 import { DataSet as DataSetIcon } from '@/app/components/base/icons/src/public/thought'
-import type { Emoji } from '@/app/components/tools/types'
 import AppIcon from '@/app/components/base/app-icon'
 
 type Props = {
   payload: ToolInfoInThought
-  allToolIcons?: Record<string, string | Emoji>
+  allToolIcons?: Record<string, string>
 }
 
-const getIcon = (toolName: string, allToolIcons: Record<string, string | Emoji>) => {
+const getIcon = (toolName: string, allToolIcons: Record<string, string>) => {
   if (toolName.startsWith('dataset_'))
     return <DataSetIcon className='shrink-0'></DataSetIcon>
   const icon = allToolIcons[toolName]
@@ -40,8 +39,6 @@ const getIcon = (toolName: string, allToolIcons: Record<string, string | Emoji>)
         <AppIcon
           className='shrink-0 rounded-[3px]'
           size='xs'
-          icon={icon?.content}
-          background={icon?.background}
         />
       ))
 }
